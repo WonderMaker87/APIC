@@ -1,0 +1,57 @@
+﻿@page "/favorites"
+@inject IJSRuntime JS
+@using System.Text.Json
+
+<h1>Favoris</h1>
+
+@if (favoriteImages != null && favoriteImages.Any())
+{
+    <div>
+        @foreach (var image in favoriteImages)
+        {
+            <div>
+                <img src="@image.Url" alt="Image favorite" class="cat-image">
+                <p>
+                    <input type="text" value="@string.Join(", ", image.Tags)" @onchange="(ChangeEventArgs e) => UpdateTags(image, e.Value.ToString())" />
+                </p>
+                <p>Created At: @image.CreatedAt.ToString("g")</p>
+                <p>Updated At: @image.UpdatedAt.ToString("g")</p>
+                <button class="btn btn-danger" @onclick="() => RemoveFavorite(image.Id)">Supprimer des favoris</button>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>Aucun favori sauvegardé.</p>
+}
+
+@code {
+    private List<ApiSimpleResponse> favoriteImages;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFavorites();
+    }
+
+    private async Task LoadFavorites()
+    {
+        var favoritesJson = await JS.InvokeAsync<string>("getFavoriteImages");
+        favoriteImages = JsonSerializer.Deserialize<List<ApiSimpleResponse>>(favoritesJson);
+    }
+
+    private async Task RemoveFavorite(string imageId)
+    {
+        await JS.InvokeVoidAsync("removeFavoriteImage", imageId);
+        await LoadFavorites();
+        StateHasChanged();
+    }
+
+    private async Task UpdateTags(ApiSimpleResponse image, string newTags)
+    {
+        var updatedTags = newTags.Split(',').Select(tag => tag.Trim()).ToList();
+        await JS.InvokeVoidAsync("updateFavoriteImage", image.Id, updatedTags);
+        await LoadFavorites(); // Cela rechargera les favoris, incluant les dates de modification mises à jour
+        StateHasChanged(); // Rendre les modifications visibles dans l'interface utilisateur
+    }
+}

@@ -1,0 +1,30 @@
+﻿@page "/"
+@inject HttpClient Http
+@inject IJSRuntime JS
+<h1>Cat Image</h1>
+
+@if (catImage != null)
+{
+    <img src="@catImage.Url" alt="Cat Image" class="cat-image">
+    <p>Tags: @string.Join(", ", catImage.Tags)</p>
+    <p>Crée le: @catImage.CreatedAt.ToString("g")</p>
+    <p>Mise à jour le: @catImage.UpdatedAt.ToString("g")</p>
+    <button class="btn btn-primary" @onclick="() => SaveFavorite(catImage)">Mettre en Favoris</button>
+}
+
+<button class="btn btn-primary" @onclick="LoadCatImage">Charger une nouvelle image</button>
+
+@code {
+    private ApiSimpleResponse? catImage;
+
+    private async Task LoadCatImage()
+    {
+        catImage = await Http.GetFromJsonAsync<ApiSimpleResponse>("https://cataas.com/cat?json=true");
+        catImage.Url = $"https://cataas.com/cat/{catImage.Id}";
+    }
+
+    private async Task SaveFavorite(ApiSimpleResponse image)
+    {
+        await JS.InvokeVoidAsync("saveFavoriteImage", image);
+    }
+}
