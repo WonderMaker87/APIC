@@ -1,0 +1,61 @@
+﻿@page "/image-detail/{ImageId}"
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@using System.Text.Json
+
+<h1>Détail de l'image</h1>
+
+@if (selectedImage != null)
+{
+    <div>
+        <img src="@selectedImage.Url" alt="Image sélectionnée" class="cat-image" />
+        <div>
+            <p>Tags: <input type="text" value="@string.Join(", ", selectedImage.Tags ?? new List<string>())" @onchange="@(e => UpdateTags(e.Value.ToString()))" /></p>
+            <p>Créé le : @selectedImage.CreatedAt.ToString("g")</p>
+            <p>Mise à jour le : @selectedImage.UpdatedAt.ToString("g")</p>
+            <button class="btn btn-danger" @onclick="RemoveFromFavorites">Supprimer des favoris</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string ImageId { get; set; }
+
+    private ApiSimpleResponse? selectedImage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadImageDetail();
+    }
+
+    private async Task LoadImageDetail()
+    {
+        var favoritesJson = await JS.InvokeAsync<string>("getFavoriteImages");
+        var favorites = JsonSerializer.Deserialize<List<ApiSimpleResponse>>(favoritesJson) ?? new List<ApiSimpleResponse>();
+        selectedImage = favorites.FirstOrDefault(img => img.Id == ImageId);
+    }
+
+    private async Task UpdateTags(string newTags)
+    {
+        var updatedTags = newTags.Split(',').Select(tag => tag.Trim()).ToList();
+        if (selectedImage != null)
+        {
+            selectedImage.Tags = updatedTags;
+            selectedImage.UpdatedAt = DateTime.UtcNow;
+            await JS.InvokeVoidAsync("updateFavoriteImage", selectedImage.Id, updatedTags, selectedImage.UpdatedAt.ToString("o"));
+            // Vous pouvez ajouter une logique ici pour recharger l'image ou pour rediriger l'utilisateur
+        }
+    }
+
+    private async Task RemoveFromFavorites()
+    {
+        if (selectedImage != null)
+        {
+            await JS.InvokeVoidAsync("removeFavoriteImage", selectedImage.Id);
+            // Rediriger l'utilisateur après la suppression
+            NavigationManager.NavigateTo("/favorites");
+        }
+    }
+
+}

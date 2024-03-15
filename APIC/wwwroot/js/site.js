@@ -14,13 +14,12 @@ function removeFavoriteImage(imageId) {
     localStorage.setItem("catFavorites", JSON.stringify(updatedFavorites));
 }
 
-function updateFavoriteImage(imageId, updatedTags) {
+function updateFavoriteImage(imageId, updatedTags, updatedAt) {
     let favorites = JSON.parse(localStorage.getItem("catFavorites")) || [];
     let favoriteIndex = favorites.findIndex(f => f._id === imageId);
     if (favoriteIndex !== -1) {
         favorites[favoriteIndex].tags = updatedTags;
-        // Mettre à jour la date de modification avec la date et l'heure actuelles
-        favorites[favoriteIndex].updatedAt = new Date().toISOString();
+        favorites[favoriteIndex].updatedAt = updatedAt; // Mettre à jour la date de modification
         localStorage.setItem("catFavorites", JSON.stringify(favorites));
     }
 }
