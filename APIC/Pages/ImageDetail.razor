@@ -10,7 +10,8 @@
     <div>
         <img src="@selectedImage.Url" alt="Image sélectionnée" class="cat-image" />
         <div>
-            <p>Tags: <input type="text" value="@string.Join(", ", selectedImage.Tags ?? new List<string>())" @onchange="@(e => UpdateTags(e.Value.ToString()))" /></p>
+            <p>Tags: <input type="text" value="@string.Join(", ", selectedImage.Tags ?? new List<string>())" @onchange="@(e => UpdateTagsTemp(e.Value.ToString()))" /></p>
+            <button @onclick="ValidateTags">Valider</button>
             <p>Créé le : @selectedImage.CreatedAt.ToString("g")</p>
             <p>Mise à jour le : @selectedImage.UpdatedAt.ToString("g")</p>
             <button class="btn btn-danger" @onclick="RemoveFromFavorites">Supprimer des favoris</button>
@@ -23,6 +24,7 @@
     public string ImageId { get; set; }
 
     private ApiSimpleResponse? selectedImage;
+    private string tempTags;
 
     protected override async Task OnInitializedAsync()
     {
@@ -36,15 +38,19 @@
         selectedImage = favorites.FirstOrDefault(img => img.Id == ImageId);
     }
 
-    private async Task UpdateTags(string newTags)
+    private void UpdateTagsTemp(string newTags)
     {
-        var updatedTags = newTags.Split(',').Select(tag => tag.Trim()).ToList();
+        tempTags = newTags;
+    }
+
+    private async Task ValidateTags()
+    {
         if (selectedImage != null)
         {
+            var updatedTags = tempTags.Split(',').Select(tag => tag.Trim()).ToList();
             selectedImage.Tags = updatedTags;
             selectedImage.UpdatedAt = DateTime.UtcNow;
             await JS.InvokeVoidAsync("updateFavoriteImage", selectedImage.Id, updatedTags, selectedImage.UpdatedAt.ToString("o"));
-            // Vous pouvez ajouter une logique ici pour recharger l'image ou pour rediriger l'utilisateur
         }
     }
 
@@ -53,7 +59,6 @@
         if (selectedImage != null)
         {
             await JS.InvokeVoidAsync("removeFavoriteImage", selectedImage.Id);
-            // Rediriger l'utilisateur après la suppression
             NavigationManager.NavigateTo("/favorites");
         }
     }
