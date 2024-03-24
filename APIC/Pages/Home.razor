@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/home"
 @inject HttpClient Http
 @inject IJSRuntime JS
 <h1>APIC : Afficheur de Photos de Chats</h1>
@@ -9,7 +9,7 @@
     <p>Tags: @string.Join(", ", catImage.Tags)</p>
     <p>Crée le: @catImage.CreatedAt.ToString("g")</p>
     <p>Mise à jour le: @catImage.UpdatedAt.ToString("g")</p>
-    <button class="btn btn-primary" @onclick="() => SaveFavorite(catImage)">Mettre en Favoris</button>
+    <button class="btn btn-primary" id="add-to-favorites" @onclick="() => SaveFavorite(catImage)">Mettre en Favoris</button>
 }
 
 <button class="btn btn-primary" id ="call" @onclick="LoadCatImage">Charger une nouvelle image</button>

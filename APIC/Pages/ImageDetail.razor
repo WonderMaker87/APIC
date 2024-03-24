@@ -10,11 +10,11 @@
     <div>
         <img src="@selectedImage.Url" alt="Image sélectionnée" class="cat-image" />
         <div>
-            <p>Tags: <input type="text" value="@string.Join(", ", selectedImage.Tags ?? new List<string>())" @onchange="@(e => UpdateTagsTemp(e.Value.ToString()))" /></p>
-            <button @onclick="ValidateTags">Valider</button>
+            <p>Tags: <input type="text" id="update" value="@string.Join(", ", selectedImage.Tags ?? new List<string>())" @onchange="@(e => UpdateTagsTemp(e.Value.ToString()))" /></p>
+            <button class="btn btn-danger" @onclick="ValidateTags">Valider</button>
             <p>Créé le : @selectedImage.CreatedAt.ToString("g")</p>
             <p>Mise à jour le : @selectedImage.UpdatedAt.ToString("g")</p>
-            <button class="btn btn-danger" @onclick="RemoveFromFavorites">Supprimer des favoris</button>
+            <button class="btn btn-danger" id="delete" @onclick="RemoveFromFavorites">Supprimer des favoris</button>
         </div>
     </div>
 }
