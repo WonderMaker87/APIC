@@ -1,6 +1,4 @@
-using System;
 using System.Text.Json;
-using Xunit;
 using APIC;
 
 public class ApiSimpleResponseTests
@@ -8,6 +6,7 @@ public class ApiSimpleResponseTests
     [Fact]
     public void SerializationAndDeserialization_WorksCorrectly()
     {
+        // Arrange
         var original = new ApiSimpleResponse
         {
             Id = "1",
@@ -20,9 +19,11 @@ public class ApiSimpleResponseTests
         };
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
+        // Act
         var jsonString = JsonSerializer.Serialize(original, options);
         var deserialized = JsonSerializer.Deserialize<ApiSimpleResponse>(jsonString, options);
 
+        // Assert
         Assert.NotNull(deserialized);
         Assert.Equal(original.Id, deserialized?.Id);
         Assert.Equal(original.Url, deserialized?.Url);

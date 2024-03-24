@@ -1,7 +1,4 @@
 ﻿using Bunit;
-using Xunit;
-using APIC;
-using System.Net.Http;
 using RichardSzalay.MockHttp;
 using Microsoft.Extensions.DependencyInjection;
 using APIC.Pages;
@@ -20,6 +17,13 @@ public class CatImageComponentTests : TestContext
 
         var component = RenderComponent<Home>();
 
+        // Act
         component.Find("#call").Click();
+
+        // Assert
+        var imgElement = component.Find("img");
+        Assert.NotNull(imgElement);
+        Assert.Equal("https://cataas.com/cat/abc", imgElement.GetAttribute("src")); 
+        Assert.Equal("cute", imgElement.GetAttribute("alt"));
     }
 }
